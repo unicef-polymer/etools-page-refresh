@@ -1,0 +1,47 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../etools-dexiejs/etools-dexiejs.html">
+
+<dom-module id="demo-helper">
+  <script>
+    (function() {
+      // jscs:disable
+      'use strict';
+
+      Polymer({
+        is: 'demo-helper',
+
+        properties: {
+          config: {
+            type: Object,
+            value: {},
+            notify: true
+          }
+        },
+
+        ready: function() {
+          var dexieDbs = [];
+          var newDb = [];
+          for (var i = 0; i <= 5; i++) {
+            var name = 'testIndexedDB' + i;
+
+            newDb[i] = new Dexie(name);
+            newDb[i].version(1).stores({
+              collectionsList: '&name,expire',
+              countries: 'id, name'
+            });
+            newDb[i].open();
+
+            dexieDbs.push(name);
+          }
+          console.log('dexieDBs created...');
+
+          this.set('config', {
+            localStorage: true,
+            dexieDbs: dexieDbs
+          });
+        }
+      });
+
+    })();
+  </script>
+</dom-module>
