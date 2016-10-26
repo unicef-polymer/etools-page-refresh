@@ -12,7 +12,9 @@ When you press the button locaStorage will be cleared and dexie databases delete
 
 ## Install
 
-TODO: bower package? 
+```bash
+$ bower install --save etools-page-refresh
+```
 
 ## Preview element locally
 
