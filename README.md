@@ -4,27 +4,20 @@ A button that will clear your app data(locaStorage and dexieDBs) then refresh th
 
 ## Usage
 
-You can supply a config object to specify what data you want to clear.
-For example:
-```javascript
-// somewhere in your polymer element
-this.config = {
-  localStorage: true,
-  dexieDbs: ['dexieDBName1','dexieDBName1']
-}
-```
-
 ```html
-<etools-page-refresh config="[[config]]"></etools-page-refresh>
+<etools-page-refresh></etools-page-refresh>
 ```
 
-When you press the button locaStorage will be cleared and dexieDBs deleted and page will reload.
+When you press the button locaStorage will be cleared and dexie databases deleted and page will reload.
 
 ## Install
 
-TODO: bower package? 
+```bash
+$ bower install --save etools-page-refresh
+```
 
 ## Preview element locally
+
 Install needed dependencies by running: `$ bower install`.
 Make sure you have the [Polymer CLI](https://www.npmjs.com/package/polymer-cli) installed. Then run `$ polymer serve` to serve your element application locally.
 

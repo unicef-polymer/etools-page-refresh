@@ -12,11 +12,6 @@ A button that will clear your app cache then refresh the page
 
 <dom-module id="etools-page-refresh">
   <template>
-    <style>
-      :host {
-        display: inline-block;
-      }
-    </style>
     <paper-icon-button icon="refresh" on-tap="_refresh" disabled="[[refreshInProgress]]"></paper-icon-button>
   </template>
 
@@ -29,49 +24,38 @@ A button that will clear your app cache then refresh the page
         is: 'etools-page-refresh',
 
         properties: {
-          config: {
-            type: Object,
-            value: {
-              localStorage: true,
-              dexieDbs: []
-            }
-          }
+
         },
 
         ready: function() {
+          this.dexieDbsNumber = 0;
           this.deleteAttemptsOnDbs = [];
-
-          // prevent use of invalid config objects
-          if (typeof this.config.localStorage === 'undefined') {
-            this.config.localStorage = true;
-          }
-          if (typeof this.config.dexieDbs === 'undefined' || !Array.isArray(this.config.dexieDbs)) {
-            this.config.dexieDbs = [];
-          }
         },
 
         _refresh: function() {
           this.refreshInProgress = true;
-          // clear localstorage
-          if (this.config.localStorage) {
-            this._clearLocalStorage();
-          }
-
-          // clear indexed dbs
-          if (this.config.dexieDbs.length > 0) {
-            this._clearDexieDbs(this.config.dexieDbs);
-          } else {
-            this._refreshPage();
-          }
+          // clear localStorage data
+          this._clearLocalStorage();
+          // clear DexieDBs for current host
+          this._clearDexieDbs();
         },
 
         _clearLocalStorage: function() {
           localStorage.clear();
         },
 
-        _clearDexieDbs: function(dexieDbs) {
-          dexieDbs.forEach(function(dbName) {
-            this._deleteDexieDb(dbName);
+        _clearDexieDbs: function() {
+          // except Chrome and Opera this method will delete only the dbs created with Dexie
+          Dexie.getDatabaseNames(function(dbsNames) {
+            this.dexieDbsNumber = dbsNames.length;
+            if (this.dexieDbsNumber > 0) {
+              dbsNames.forEach(function(dbName) {
+                this._deleteDexieDb(dbName);
+              }.bind(this));
+            } else {
+              // no dexie dbs to delete, just refresh the page
+              this._refreshPage();
+            }
           }.bind(this));
         },
 
@@ -81,12 +65,12 @@ A button that will clear your app cache then refresh the page
             console.error("Could not delete indexedDB: " + dbName, err);
           }).finally(function() {
             this.push('deleteAttemptsOnDbs', dbName);
-            this._dexieDbsDeleted(this.deleteAttemptsOnDbs);
+            this._dexieDbsDeleted();
           }.bind(this));
         },
 
-        _dexieDbsDeleted: function(deletedDexieDbs) {
-          if (deletedDexieDbs.length > 0 && deletedDexieDbs.length === this.config.dexieDbs.length) {
+        _dexieDbsDeleted: function() {
+          if (this.dexieDbsNumber > 0 && this.deleteAttemptsOnDbs.length === this.dexieDbsNumber) {
             this._refreshPage();
           }
         },
