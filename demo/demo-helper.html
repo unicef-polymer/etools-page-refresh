@@ -11,15 +11,11 @@
         is: 'demo-helper',
 
         properties: {
-          config: {
-            type: Object,
-            value: {},
-            notify: true
-          }
+
         },
 
         ready: function() {
-          var dexieDbs = [];
+          // create some test data
           var newDb = [];
           for (var i = 0; i <= 5; i++) {
             var name = 'testIndexedDB' + i;
@@ -31,14 +27,17 @@
             });
             newDb[i].open();
 
-            dexieDbs.push(name);
+            newDb[i].countries.add({id: 1, name: 'US'});
+
+            newDb[i].countries.toArray(function(c) {
+              console.log(c);
+            });
           }
           console.log('dexieDBs created...');
+          setTimeout(function() {
+            Dexie.getDatabaseNames(function callback(names){console.log(names)});
+          }, 3000);
 
-          this.set('config', {
-            localStorage: true,
-            dexieDbs: dexieDbs
-          });
         }
       });
 
