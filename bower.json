@@ -1,7 +1,7 @@
 {
   "name": "etools-page-refresh",
   "description": "A button that will clear your app cache then refresh the page",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "https://github.com/unicef-polymer/etools-page-refresh/blob/master/LICENSE.md",
   "main": "etools-page-refresh.html",
   "dependencies": {
