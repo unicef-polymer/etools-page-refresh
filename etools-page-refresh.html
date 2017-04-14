@@ -7,7 +7,7 @@
 
 A button that will clear your app cache then refresh the page
 
-@demo demo/index.html 
+@demo demo/index.html
 -->
 
 <dom-module id="etools-page-refresh">
@@ -34,10 +34,16 @@ A button that will clear your app cache then refresh the page
 
         _refresh: function() {
           this.refreshInProgress = true;
-          // clear localStorage data
-          this._clearLocalStorage();
+          //**Important : Do not clear localStorage before Dexie db ,
+          // because for Firefox, IE, Edge and Safari, Dexie stores the db names
+          // in the localStorage under the key Dexie.DatabaseNames
+          // and method Dexie.getDabasesNames searches for this key
+
           // clear DexieDBs for current host
           this._clearDexieDbs();
+
+             // clear localStorage data
+          this._clearLocalStorage();
         },
 
         _clearLocalStorage: function() {
