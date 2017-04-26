@@ -6,68 +6,68 @@
   /** @polymerBehavior etoolsBehaviors.EtoolsRefreshBehavior */
  etoolsBehaviors.EtoolsRefreshBehavior = {
     properties: {
-            dexieDbsNumber: Number,
-            deleteAttemptsOnDbs: Array,
-            refreshInProgress: Boolean,
-          },
+      dexieDbsNumber: Number,
+      deleteAttemptsOnDbs: Array,
+      refreshInProgress: Boolean,
+    },
 
-          ready: function() {
-            this.dexieDbsNumber = 0;
-            this.deleteAttemptsOnDbs = [];
-          },
+    ready: function() {
+      this.dexieDbsNumber = 0;
+      this.deleteAttemptsOnDbs = [];
+    },
 
-          refresh: function() {
-            this.refreshInProgress = true;
-            //**Important : Do not clear localStorage before Dexie db ,
-            // because for Firefox, IE, Edge and Safari, Dexie stores the db names
-            // in the localStorage under the key Dexie.DatabaseNames
-            // and method Dexie.getDabasesNames searches for this key
+    refresh: function() {
+      this.refreshInProgress = true;
+      //**Important : Do not clear localStorage before Dexie db ,
+      // because for Firefox, IE, Edge and Safari, Dexie stores the db names
+      // in the localStorage under the key Dexie.DatabaseNames
+      // and method Dexie.getDabasesNames searches for this key
 
-            // clear DexieDBs for current host
-            this.clearDexieDbs();
+      // clear DexieDBs for current host
+      this.clearDexieDbs();
 
-              // clear localStorage data
-            this.clearLocalStorage();
-          },
+        // clear localStorage data
+      this.clearLocalStorage();
+    },
 
-          clearLocalStorage: function() {
-            localStorage.clear();
-          },
+    clearLocalStorage: function() {
+      localStorage.clear();
+    },
 
-          clearDexieDbs: function() {
-            // except Chrome and Opera this method will delete only the dbs created with Dexie
-            Dexie.getDatabaseNames(function(dbsNames) {
-              this.dexieDbsNumber = dbsNames.length;
-              if (this.dexieDbsNumber > 0) {
-                dbsNames.forEach(function(dbName) {
-                  this.deleteDexieDb(dbName);
-                }.bind(this));
-              } else {
-                // no dexie dbs to delete, just refresh the page
-                this._refreshPage();
-              }
-            }.bind(this));
-          },
+    clearDexieDbs: function() {
+      // except Chrome and Opera this method will delete only the dbs created with Dexie
+      Dexie.getDatabaseNames(function(dbsNames) {
+        this.dexieDbsNumber = dbsNames.length;
+        if (this.dexieDbsNumber > 0) {
+          dbsNames.forEach(function(dbName) {
+            this.deleteDexieDb(dbName);
+          }.bind(this));
+        } else {
+          // no dexie dbs to delete, just refresh the page
+          this._refreshPage();
+        }
+      }.bind(this));
+    },
 
-          deleteDexieDb: function(dbName) {
-            var db = new Dexie(dbName);
-            db.delete().catch(function (err) {
-              console.error("Could not delete indexedDB: " + dbName, err);
-            }).finally(function() {
-              this.push('deleteAttemptsOnDbs', dbName);
-              this._dexieDbsDeleted();
-            }.bind(this));
-          },
+    deleteDexieDb: function(dbName) {
+      var db = new Dexie(dbName);
+      db.delete().catch(function (err) {
+        console.error("Could not delete indexedDB: " + dbName, err);
+      }).finally(function() {
+        this.push('deleteAttemptsOnDbs', dbName);
+        this._dexieDbsDeleted();
+      }.bind(this));
+    },
 
-          _dexieDbsDeleted: function() {
-            if (this.dexieDbsNumber > 0 && this.deleteAttemptsOnDbs.length === this.dexieDbsNumber) {
-              this._refreshPage();
-            }
-          },
+    _dexieDbsDeleted: function() {
+      if (this.dexieDbsNumber > 0 && this.deleteAttemptsOnDbs.length === this.dexieDbsNumber) {
+        this._refreshPage();
+      }
+    },
 
-          _refreshPage: function() {
-            this.refreshInProgress = false;
-            window.location.reload(true);
-          }
+    _refreshPage: function() {
+      this.refreshInProgress = false;
+      window.location.reload(true);
+    }
   }
 </script>
