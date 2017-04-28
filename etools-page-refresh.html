@@ -1,6 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../etools-dexiejs/etools-dexiejs.html">
+<link rel="import" href="etools-refresh-behavior.html">
 
 <!--
 `etools-page-refresh`
@@ -12,7 +12,7 @@ A button that will clear your app cache then refresh the page
 
 <dom-module id="etools-page-refresh">
   <template>
-    <paper-icon-button icon="refresh" on-tap="_refresh" disabled="[[refreshInProgress]]"></paper-icon-button>
+    <paper-icon-button icon="refresh" on-tap="refresh" disabled="[[refreshInProgress]]"></paper-icon-button>
   </template>
 
   <script>
@@ -20,72 +20,8 @@ A button that will clear your app cache then refresh the page
       'use strict';
 
       Polymer({
-
         is: 'etools-page-refresh',
-
-        properties: {
-
-        },
-
-        ready: function() {
-          this.dexieDbsNumber = 0;
-          this.deleteAttemptsOnDbs = [];
-        },
-
-        _refresh: function() {
-          this.refreshInProgress = true;
-          //**Important : Do not clear localStorage before Dexie db ,
-          // because for Firefox, IE, Edge and Safari, Dexie stores the db names
-          // in the localStorage under the key Dexie.DatabaseNames
-          // and method Dexie.getDabasesNames searches for this key
-
-          // clear DexieDBs for current host
-          this._clearDexieDbs();
-
-             // clear localStorage data
-          this._clearLocalStorage();
-        },
-
-        _clearLocalStorage: function() {
-          localStorage.clear();
-        },
-
-        _clearDexieDbs: function() {
-          // except Chrome and Opera this method will delete only the dbs created with Dexie
-          Dexie.getDatabaseNames(function(dbsNames) {
-            this.dexieDbsNumber = dbsNames.length;
-            if (this.dexieDbsNumber > 0) {
-              dbsNames.forEach(function(dbName) {
-                this._deleteDexieDb(dbName);
-              }.bind(this));
-            } else {
-              // no dexie dbs to delete, just refresh the page
-              this._refreshPage();
-            }
-          }.bind(this));
-        },
-
-        _deleteDexieDb: function(dbName) {
-          var db = new Dexie(dbName);
-          db.delete().catch(function (err) {
-            console.error("Could not delete indexedDB: " + dbName, err);
-          }).finally(function() {
-            this.push('deleteAttemptsOnDbs', dbName);
-            this._dexieDbsDeleted();
-          }.bind(this));
-        },
-
-        _dexieDbsDeleted: function() {
-          if (this.dexieDbsNumber > 0 && this.deleteAttemptsOnDbs.length === this.dexieDbsNumber) {
-            this._refreshPage();
-          }
-        },
-
-        _refreshPage: function() {
-          this.refreshInProgress = false;
-          window.location.reload(true);
-        }
-
+        behaviors: [etoolsBehaviors.EtoolsRefreshBehavior]
       });
     })();
   </script>
