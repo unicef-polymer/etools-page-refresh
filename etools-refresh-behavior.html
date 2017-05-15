@@ -6,15 +6,15 @@
   etoolsBehaviors.EtoolsRefreshBehavior = {
     properties: {
       dexieDbsNumber: Number,
-      deleteAttemptsOnDbs: Array,
+      dbsAttemptedToDelete: Array,
       refreshInProgress: Boolean,
     },
 
-    observers: ['_triggerPageRefresh(dexieDbsNumber, deleteAttemptsOnDbs.length)'],
+    observers: ['_triggerPageRefresh(dexieDbsNumber, dbsAttemptedToDelete.length)'],
 
     ready: function() {
       this.dexieDbsNumber = 0;
-      this.deleteAttemptsOnDbs = [];
+      this.dbsAttemptedToDelete = [];
     },
 
     refresh: function() {
@@ -49,7 +49,7 @@
       db.delete().catch(function(err) {
         console.error("Could not delete indexedDB: " + dbName, err);
       }).finally(function() {
-        this.push('deleteAttemptsOnDbs', dbName);
+        this.push('dbsAttemptedToDelete', dbName);
       }.bind(this));
     },
 
