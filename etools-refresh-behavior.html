@@ -1,15 +1,16 @@
-<link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../etools-dexiejs/dexie.html">
 <script>
   window.etoolsBehaviors = window.etoolsBehaviors || {};
 
   /** @polymerBehavior etoolsBehaviors.EtoolsRefreshBehavior */
- etoolsBehaviors.EtoolsRefreshBehavior = {
+  etoolsBehaviors.EtoolsRefreshBehavior = {
     properties: {
       dexieDbsNumber: Number,
       deleteAttemptsOnDbs: Array,
       refreshInProgress: Boolean,
     },
+
+    observers: ['_triggerPageRefresh(dexieDbsNumber, deleteAttemptsOnDbs.length)'],
 
     ready: function() {
       this.dexieDbsNumber = 0;
@@ -23,11 +24,8 @@
       // in the localStorage under the key Dexie.DatabaseNames
       // and method Dexie.getDabasesNames searches for this key
 
-      // clear DexieDBs for current host
+      // clear DexieDBs for current host then clear local storage and refresh the page
       this.clearDexieDbs();
-
-        // clear localStorage data
-      this.clearLocalStorage();
     },
 
     clearLocalStorage: function() {
@@ -42,32 +40,40 @@
           dbsNames.forEach(function(dbName) {
             this.deleteDexieDb(dbName);
           }.bind(this));
-        } else {
-          // no dexie dbs to delete, just refresh the page
-          this._refreshPage();
         }
       }.bind(this));
     },
 
     deleteDexieDb: function(dbName) {
       var db = new Dexie(dbName);
-      db.delete().catch(function (err) {
+      db.delete().catch(function(err) {
         console.error("Could not delete indexedDB: " + dbName, err);
       }).finally(function() {
         this.push('deleteAttemptsOnDbs', dbName);
-        this._dexieDbsDeleted();
       }.bind(this));
-    },
-
-    _dexieDbsDeleted: function() {
-      if (this.dexieDbsNumber > 0 && this.deleteAttemptsOnDbs.length === this.dexieDbsNumber) {
-        this._refreshPage();
-      }
     },
 
     _refreshPage: function() {
       this.refreshInProgress = false;
       window.location.reload(true);
+    },
+
+    _triggerPageRefresh: function(dbsNr, deleteAttempts) {
+      if (this.refreshInProgress) {
+        var doRefresh = false;
+        if (dbsNr > 0) {
+          if (deleteAttempts === dbsNr) {
+            this.clearLocalStorage();
+            doRefresh = true;
+          }
+        } else {
+          this.clearLocalStorage();
+          doRefresh = true;
+        }
+        if (doRefresh) {
+          this._refreshPage();
+        }
+      }
     }
-  }
+  };
 </script>
