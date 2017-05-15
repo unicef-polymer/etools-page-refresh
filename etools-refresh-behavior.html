@@ -10,7 +10,7 @@
       refreshInProgress: Boolean,
     },
 
-    observers: ['_triggerPageRefresh(dexieDbsNumber, dbsAttemptedToDelete.length)'],
+    observers: ['_triggerPageRefresh(dbsAttemptedToDelete.length)'],
 
     ready: function() {
       this.dexieDbsNumber = 0;
@@ -58,11 +58,11 @@
       window.location.reload(true);
     },
 
-    _triggerPageRefresh: function(dbsNr, deleteAttempts) {
+    _triggerPageRefresh: function(deleteAttempts) {
       if (this.refreshInProgress) {
         var doRefresh = false;
-        if (dbsNr > 0) {
-          if (deleteAttempts === dbsNr) {
+        if (this.dexieDbsNumber > 0) {
+          if (deleteAttempts === this.dexieDbsNumber) {
             this.clearLocalStorage();
             doRefresh = true;
           }
